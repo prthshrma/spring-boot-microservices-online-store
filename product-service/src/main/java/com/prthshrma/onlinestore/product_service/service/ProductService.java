@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 // import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.prthshrma.onlinestore.product_service.dto.ProductRequest;
 import com.prthshrma.onlinestore.product_service.dto.ProductResponse;
@@ -12,6 +13,7 @@ import com.prthshrma.onlinestore.product_service.model.Product;
 import com.prthshrma.onlinestore.product_service.repository.ProductRepository;
 
 @Service
+@Transactional
 public class ProductService {
 
     private static final Logger log = Logger.getLogger(ProductService.class.getName());
