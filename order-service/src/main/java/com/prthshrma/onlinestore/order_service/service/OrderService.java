@@ -21,12 +21,12 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    private final WebClient webClient;
+    private final WebClient.Builder webClientbBuilder;
 
     //Dependency Injection
-    public OrderService(OrderRepository orderRepository, WebClient webClient){
+    public OrderService(OrderRepository orderRepository, WebClient.Builder webClientbBuilder){
         this.orderRepository = orderRepository;
-        this.webClient = webClient;
+        this.webClientbBuilder = webClientbBuilder;
     }
 
     public void placeOrder(OrderRequest orderRequest){
@@ -45,7 +45,7 @@ public class OrderService {
         .toList();
 
         //Check if the items are in stock?
-        InventoryResponse[] inventoryResponses = webClient.get().uri("http://localhost:8082/api/inventory", 
+        InventoryResponse[] inventoryResponses = webClientbBuilder.build().get().uri("http://inventory-service/api/inventory", 
                 uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
