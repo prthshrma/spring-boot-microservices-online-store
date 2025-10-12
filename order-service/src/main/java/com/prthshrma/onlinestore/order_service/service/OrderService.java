@@ -29,7 +29,7 @@ public class OrderService {
         this.webClientbBuilder = webClientbBuilder;
     }
 
-    public void placeOrder(OrderRequest orderRequest){
+    public String placeOrder(OrderRequest orderRequest){
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
 
@@ -55,8 +55,10 @@ public class OrderService {
                                 .allMatch(inventoryResponse -> inventoryResponse.isInStock());
 
 
-        if(isAllInStock)
+        if(isAllInStock){
             orderRepository.save(order);
+            return "Order is Placed!";
+        }
         else{
             throw new IllegalArgumentException("Products is out of stock");
         }
