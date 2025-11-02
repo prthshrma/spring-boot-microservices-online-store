@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.prthshrma.onlinestore.order_service.dto.InventoryResponse;
 import com.prthshrma.onlinestore.order_service.dto.OrderLineItemsDto;
 import com.prthshrma.onlinestore.order_service.dto.OrderRequest;
+import com.prthshrma.onlinestore.order_service.event.OrderPlacedEvent;
 import com.prthshrma.onlinestore.order_service.model.Order;
 import com.prthshrma.onlinestore.order_service.model.OrderLineItems;
 import com.prthshrma.onlinestore.order_service.repository.OrderRepository;
@@ -23,10 +25,15 @@ public class OrderService {
 
     private final WebClient.Builder webClientbBuilder;
 
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
+
     //Dependency Injection
-    public OrderService(OrderRepository orderRepository, WebClient.Builder webClientbBuilder){
+    public OrderService(OrderRepository orderRepository, 
+                            WebClient.Builder webClientbBuilder, 
+                                KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate){
         this.orderRepository = orderRepository;
         this.webClientbBuilder = webClientbBuilder;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public String placeOrder(OrderRequest orderRequest){
@@ -57,6 +64,7 @@ public class OrderService {
 
         if(isAllInStock){
             orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
             return "Order is Placed!";
         }
         else{
